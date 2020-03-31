@@ -8,6 +8,12 @@
                 "description": "Specifies the name of the Azure Machine Learning service workspace."
             }
         },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the name of the Storage account."
+            }
+        },
         "keyVaultName": {
             "type": "string",
             "metadata": {
@@ -54,7 +60,6 @@
         }
     },
     "variables": {
-        "storageAccountName": "[concat('sa',uniqueString(resourceGroup().id))]",
         "storageAccountType": "Standard_LRS",
         "tenantId": "[subscription().tenantId]",
         "applicationInsightsName": "[concat('ai',uniqueString(resourceGroup().id))]"
@@ -63,10 +68,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-04-01",
-            "name": "[variables('storageAccountName')]",
+            "name": "[parameter('storageAccountName')]",
             "location": "[parameters('location')]",
             "sku": {
-                "name": "[variables('storageAccountType')]"
+                "name": "[parameters('storageAccountType')]"
             },
             "kind": "StorageV2",
             "properties": {
@@ -90,7 +95,7 @@
             "name": "[parameters('keyVaultName')]",
             "location": "[parameters('location')]",
             "properties": {
-                "tenantId": "[variables('tenantId')]",
+                "tenantId": "[parameters('tenantId')]",
                 "sku": {
                     "name": "standard",
                     "family": "A"
@@ -114,8 +119,8 @@
             "name": "[parameters('workspaceName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
-                "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
                 "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
             ],
             "identity": {
@@ -127,9 +132,9 @@
             },
             "properties": {
                 "friendlyName": "[parameters('workspaceName')]",
-                "keyVault": "[resourceId('Microsoft.KeyVault/vaults',variables('keyVaultName'))]",
+                "keyVault": "[resourceId('Microsoft.KeyVault/vaults',parameters('keyVaultName'))]",
                 "applicationInsights": "[resourceId('Microsoft.Insights/components',variables('applicationInsightsName'))]",
-                "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts/',variables('storageAccountName'))]"
+                "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts/',parameters('storageAccountName'))]"
             }
         }
     ]
